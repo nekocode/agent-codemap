@@ -45,9 +45,7 @@ def create_user(name):
 
 Output `.codemap/src/user.py.md`:
 ```markdown
-# src/user.py
-
-Language: python
+# OUTLINE
 
 - [class] `User` (line 1)
   - [method] `__init__` (line 2)
@@ -94,28 +92,23 @@ agent-codemap . -o ./.codemap
 
 Add the following to your `CLAUDE.md`, `AGENTS.md`, or equivalent:
 
-```markdown
-## Code Index
+````markdown
+## Code Outline
 
-When you need to understand project structure or locate symbols (classes, functions, variables):
+The `.codemap/` directory contains outline files for each source file. Path rule: source file's relative path + `.md` suffix.
 
-1. Search `.codemap/` directory for relevant index files
-2. Each `.md` file maps to a source file with the same relative path
+Example: `src/A.js` → `.codemap/src/A.js.md`
 
-Index format example:
-​```
-# src/auth/user.py
-
-Language: python
+Outline files contain AST structure info, format example:
+```
+# OUTLINE
 
 - [class] `User` (line 12)
   - [variable] `id` (line 15)
   - [method] `authenticate` (line 28)
 - [function] `create_session` (line 45)
-​```
-
-Use line numbers to navigate directly to symbol definitions.
 ```
+````
 
 **Tip**: Add `.codemap/` to `.gitignore` if you prefer not to commit the index.
 

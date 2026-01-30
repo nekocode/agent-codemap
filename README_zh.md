@@ -45,9 +45,7 @@ def create_user(name):
 
 输出 `.codemap/src/user.py.md`：
 ```markdown
-# src/user.py
-
-Language: python
+# OUTLINE
 
 - [class] `User` (line 1)
   - [method] `__init__` (line 2)
@@ -93,28 +91,23 @@ agent-codemap . -o ./.codemap
 
 将以下内容添加到你的 `CLAUDE.md`、`AGENTS.md` 或类似文件：
 
-```markdown
-## 代码索引
+````markdown
+## 代码大纲
 
-当你需要了解项目结构或定位符号（类、函数、变量）时：
+在 `.codemap/` 目录下，每个源码文件都有对应的大纲文件，路径规则为：源码的相对路径 + `.md` 后缀。
 
-1. 在 `.codemap/` 目录搜索相关索引文件
-2. 每个 `.md` 文件对应同路径的源文件
+例如：`src/A.js` → `.codemap/src/A.js.md`
 
-索引格式示例：
-​```
-# src/auth/user.py
-
-Language: python
+大纲文件包含 AST 结构信息，格式示例：
+```
+# OUTLINE
 
 - [class] `User` (line 12)
   - [variable] `id` (line 15)
   - [method] `authenticate` (line 28)
 - [function] `create_session` (line 45)
-​```
-
-使用行号直接跳转到符号定义。
 ```
+````
 
 **提示**：如果不想提交索引文件，可将 `.codemap/` 添加到 `.gitignore`。
 
