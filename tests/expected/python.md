@@ -1,0 +1,15 @@
+Language: python
+
+- [class] `User` (line 6)
+  - [method] `__init__` (line 9)
+  - [method] `validate_email` (line 13)
+  - [method] `to_dict` (line 16)
+- [class] `Session` (line 20)
+  - [method] `create` (line 24)
+  - [method] `generate_token` (line 28)
+  - [method] `validate` (line 31)
+- [function] `login` (line 35)
+- [function] `logout` (line 40)
+- [function] `fetch_user` (line 45)
+- [variable] `DEFAULT_TIMEOUT` (line 50)
+- [variable] `MAX_RETRIES` (line 51)

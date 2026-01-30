@@ -1,0 +1,96 @@
+[package]
+name = "agent-codemap"
+version = "0.1.0"
+edition = "2021"
+description = "AI-friendly source code index generator"
+license = "MIT"
+readme = "README.md"
+keywords = ["cli", "code-index", "tree-sitter", "ai", "llm"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# ============================================================
+# CLI
+# ============================================================
+clap = { version = "4", features = ["derive"] }
+
+# ============================================================
+# Serialization
+# ============================================================
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# ============================================================
+# File System
+# ============================================================
+ignore = "0.4"
+
+# ============================================================
+# Tree-sitter Core
+# ============================================================
+tree-sitter = "0.26"
+streaming-iterator = "0.1"
+
+# ============================================================
+# Tree-sitter Language Grammars (MVP: Python, TypeScript, JavaScript)
+# ============================================================
+tree-sitter-python = "0.23"
+tree-sitter-typescript = "0.23"
+tree-sitter-javascript = "0.23"
+
+# ============================================================
+# Tree-sitter Language Grammars (Extended)
+# ============================================================
+tree-sitter-go = "0.23"
+tree-sitter-rust = "0.23"
+tree-sitter-java = "0.23"
+tree-sitter-c = "0.23"
+tree-sitter-cpp = "0.23"
+tree-sitter-ruby = "0.23"
+
+# ============================================================
+# Tree-sitter Language Grammars (Markdown)
+# ============================================================
+tree-sitter-md = "0.5"
+
+# ============================================================
+# Tree-sitter Language Grammars (iOS: Swift, Objective-C)
+# ============================================================
+tree-sitter-swift = "0.7"
+tree-sitter-objc = "3.0"
+
+# ============================================================
+# Tree-sitter Language Grammars (JVM: Kotlin)
+# ============================================================
+tree-sitter-kotlin-ng = "1.1"
+
+# ============================================================
+# Tree-sitter Language Grammars (.NET: C#)
+# ============================================================
+tree-sitter-c-sharp = "0.23"
+
+# ============================================================
+# Error Handling
+# ============================================================
+anyhow = "1"
+thiserror = "1"
+
+# ============================================================
+# File Watching
+# ============================================================
+notify = "7"
+
+# ============================================================
+# Parallel Processing
+# ============================================================
+rayon = "1.10"
+
+[dev-dependencies]
+serde_json = "1"
+regex = "1"
+tempfile = "3.24.0"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true
