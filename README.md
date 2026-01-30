@@ -4,11 +4,13 @@ AI-friendly source code index generator. Extracts symbols from source files and 
 
 ## Install
 
+**Option 1: npm (recommended)**
 ```bash
-# npm (recommended)
 npm install -g @nekocode/agent-codemap
+```
 
-# From source
+**Option 2: Build from source**
+```bash
 cargo install --path .
 ```
 
