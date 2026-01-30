@@ -1,0 +1,13 @@
+{
+  "name": "@nekocode/agent-codemap-darwin-arm64",
+  "version": "0.1.1",
+  "description": "agent-codemap binary for macOS ARM64",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nekocode/agent-codemap"
+  },
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  "files": ["bin/agent-codemap"]
+}

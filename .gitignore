@@ -3,3 +3,8 @@ CLAUDE.md
 task_plan.md
 findings.md
 progress.md
+
+# npm build artifacts
+npm/*/bin/agent-codemap
+npm/*/bin/agent-codemap.exe
+npm/*/*.tgz

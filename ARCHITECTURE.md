@@ -32,6 +32,15 @@ agent-codemap/
 │       ├── objc.scm
 │       ├── kotlin.scm
 │       └── csharp.scm
+├── npm/                 # npm 分发包 (@nekocode/*)
+│   ├── agent-codemap/              # 主包 (JS wrapper)
+│   ├── agent-codemap-darwin-arm64/ # macOS ARM64 二进制
+│   ├── agent-codemap-darwin-x64/   # macOS x64 二进制
+│   ├── agent-codemap-linux-x64/    # Linux x64 二进制
+│   └── agent-codemap-win32-x64/    # Windows x64 二进制
+├── scripts/
+│   ├── build-npm.sh     # 构建 npm 包 (编译 + 复制二进制)
+│   └── publish-npm.sh   # 发布 npm 包
 └── tests/
     ├── integration_test.rs   # 集成测试 (精确文件比对)
     ├── expected/             # 预期输出 (每语言一个 .md)
@@ -123,3 +132,35 @@ enum SymbolKind {
     Field, EnumMember, Type, Namespace
 }
 ```
+
+## npm 分发
+
+采用 esbuild 风格的 platform-specific packages 方案：
+
+```bash
+# 全局安装
+npm install -g @nekocode/agent-codemap
+
+# 或项目内安装
+npm install @nekocode/agent-codemap
+npx agent-codemap --help
+```
+
+### 构建与发布
+
+```bash
+# 构建当前平台
+./scripts/build-npm.sh current
+
+# 构建所有平台 (需要 cross)
+./scripts/build-npm.sh all
+
+# 发布 (先构建，再发布)
+./scripts/publish-npm.sh 0.1.0
+```
+
+### 工作原理
+
+1. 主包 `@nekocode/agent-codemap` 通过 `optionalDependencies` 引用平台包
+2. npm 根据当前平台自动只安装匹配的平台包
+3. JS wrapper 检测平台，调用对应二进制
