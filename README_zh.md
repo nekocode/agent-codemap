@@ -4,6 +4,8 @@
 
 AI 友好的源码索引生成器。从源文件中提取符号，输出结构化 Markdown 供 LLM 使用。
 
+![Cover](cover.jpg)
+
 ## 安装
 
 **方式一：npm（推荐）**

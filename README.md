@@ -4,6 +4,8 @@ English | [中文](./README_zh.md)
 
 AI-friendly source code index generator. Extracts symbols from source files and outputs structured Markdown for LLM context.
 
+![Cover](cover.jpg)
+
 ## Install
 
 **Option 1: npm (recommended)**
