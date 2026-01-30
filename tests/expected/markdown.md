@@ -1,4 +1,4 @@
-Language: markdown
+# OUTLINE
 
 - [module] `Project Title` (line 1)
 - [class] `Getting Started` (line 5)

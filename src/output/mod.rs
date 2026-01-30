@@ -54,9 +54,9 @@ mod tests {
     fn test_render_single() {
         let map = make_map("test.rs");
         let output = render_single(&map);
-        assert!(output.contains("test.rs"));
-        assert!(output.contains("rust"));
-        assert!(output.contains("test"));
+        assert!(output.contains("# OUTLINE"));
+        assert!(output.contains("[function]"));
+        assert!(output.contains("`test`"));
     }
 
     #[test]
@@ -69,6 +69,6 @@ mod tests {
         assert!(output.exists());
 
         let content = fs::read_to_string(&output).unwrap();
-        assert!(content.contains("test.rs"));
+        assert!(content.contains("# OUTLINE"));
     }
 }

@@ -1,4 +1,4 @@
-Language: rust
+# OUTLINE
 
 - [class] `User` (line 6)
   - [field] `name` (line 7)

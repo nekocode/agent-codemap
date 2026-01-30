@@ -1,4 +1,4 @@
-Language: objc
+# OUTLINE
 
 - [interface] `Identifiable` (line 10)
   - [method] `identifier` (line 13)

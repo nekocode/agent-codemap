@@ -8,8 +8,7 @@ use crate::symbol::{FileMap, Symbol};
 pub fn render_single(map: &FileMap) -> String {
     let mut out = String::new();
 
-    out.push_str(&format!("# {}\n\n", map.path));
-    out.push_str(&format!("Language: {}\n\n", map.language));
+    out.push_str("# OUTLINE\n\n");
 
     for sym in &map.symbols {
         render_symbol(&mut out, sym, 0);

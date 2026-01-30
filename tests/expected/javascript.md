@@ -1,4 +1,4 @@
-Language: javascript
+# OUTLINE
 
 - [class] `Animal` (line 6)
   - [method] `constructor` (line 7)

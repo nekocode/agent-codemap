@@ -1,4 +1,4 @@
-Language: typescript
+# OUTLINE
 
 - [interface] `User` (line 5)
   - [property] `name` (line 6)

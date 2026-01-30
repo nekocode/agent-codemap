@@ -36,9 +36,9 @@ fn expected_path(lang: &str) -> PathBuf {
         .join(format!("{}.md", lang))
 }
 
-/// 提取输出内容（跳过路径行）
+/// 提取输出内容
 fn extract_content(output: &str) -> String {
-    output.lines().skip(2).collect::<Vec<_>>().join("\n")
+    output.trim().to_string()
 }
 
 /// 精确比对输出与预期文件

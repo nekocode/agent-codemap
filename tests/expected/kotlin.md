@@ -1,4 +1,4 @@
-Language: kotlin
+# OUTLINE
 
 - [interface] `Identifiable` (line 10)
   - [property] `id` (line 11)

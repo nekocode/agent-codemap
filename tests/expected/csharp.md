@@ -1,4 +1,4 @@
-Language: csharp
+# OUTLINE
 
 - [namespace] `Example.Test` (line 8)
   - [interface] `IIdentifiable` (line 13)
