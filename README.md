@@ -1,5 +1,7 @@
 # agent-codemap
 
+English | [中文](./README_zh.md)
+
 AI-friendly source code index generator. Extracts symbols from source files and outputs structured Markdown for LLM context.
 
 ## Install
@@ -18,10 +20,10 @@ cargo install --path .
 
 ```bash
 # Generate index for a directory
-agent-codemap ./src -o ./codemap
+agent-codemap . -o ./.codemap
 
 # Watch mode (regenerate on file changes)
-agent-codemap ./src -o ./codemap -w
+agent-codemap . -o ./.codemap -w
 ```
 
 ## Example Output
@@ -39,7 +41,7 @@ def create_user(name):
     return User(name)
 ```
 
-Output `codemap/user.py.md`:
+Output `.codemap/src/user.py.md`:
 ```markdown
 # src/user.py
 
@@ -76,6 +78,44 @@ Language: python
 - Preserves directory structure in output
 - Watch mode for incremental updates
 - Nested symbol extraction (methods inside classes, etc.)
+
+
+## Usage with AI Agents
+
+**Step 1: Generate code index**
+
+```bash
+agent-codemap . -o ./.codemap
+```
+
+**Step 2: Add to your AI agent instructions**
+
+Add the following to your `CLAUDE.md`, `AGENTS.md`, or equivalent:
+
+```markdown
+## Code Index
+
+When you need to understand project structure or locate symbols (classes, functions, variables):
+
+1. Search `.codemap/` directory for relevant index files
+2. Each `.md` file maps to a source file with the same relative path
+
+Index format example:
+​```
+# src/auth/user.py
+
+Language: python
+
+- [class] `User` (line 12)
+  - [variable] `id` (line 15)
+  - [method] `authenticate` (line 28)
+- [function] `create_session` (line 45)
+​```
+
+Use line numbers to navigate directly to symbol definitions.
+```
+
+**Tip**: Add `.codemap/` to `.gitignore` if you prefer not to commit the index.
 
 ## License
 
