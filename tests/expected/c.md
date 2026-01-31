@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.c
 
 - [constant] `MAX_USERS` (line 9)
 - [constant] `DEFAULT_NAME` (line 10)

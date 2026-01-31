@@ -9,14 +9,14 @@ agent-codemap/
 ├── src/
 │   ├── main.rs          # 入口: CLI 解析 → 扫描 → 提取 → 输出
 │   ├── cli.rs           # 命令行参数定义 (clap)
-│   ├── scanner.rs       # 文件扫描 (自动 gitignore + 输出目录过滤)
+│   ├── scanner.rs       # 文件扫描 (支持单文件/目录，自动 gitignore)
 │   ├── detector.rs      # 语言检测 (扩展名 → Language)
 │   ├── extractor.rs     # Tree-sitter 符号提取核心
 │   ├── symbol.rs        # 符号数据结构 (Symbol, FileMap)
-│   ├── watch.rs         # Watch 模式 (增量更新 + 内存缓存)
 │   ├── output/          # 输出格式化
 │   │   ├── mod.rs       # 输出调度
-│   │   └── markdown.rs  # Markdown 格式
+│   │   ├── markdown.rs  # Markdown 格式
+│   │   └── json.rs      # JSON 格式
 │   └── queries/         # Tree-sitter 查询 (S-expression)
 │       ├── python.scm
 │       ├── typescript.scm
@@ -42,7 +42,7 @@ agent-codemap/
 │   ├── build-npm.sh     # 构建 npm 包 (编译 + 复制二进制)
 │   └── publish-npm.sh   # 发布 npm 包
 └── tests/
-    ├── integration_test.rs   # 集成测试 (精确文件比对)
+    ├── integration_test.rs   # 集成测试 (stdout 比对)
     ├── expected/             # 预期输出 (每语言一个 .md)
     └── fixtures/             # 测试输入 (每语言一个 basic.*)
 ```
@@ -50,15 +50,15 @@ agent-codemap/
 ## 数据流
 
 ```
-CLI 参数 (input_dir, output_dir)
+CLI 参数 (input, format)
     ↓
-scanner::scan()      → Vec<PathBuf>  (自动过滤 .gitignore + output_dir)
+scanner::scan()          → Vec<PathBuf>  (支持单文件/目录，自动 gitignore)
     ↓
-detector::detect()   → Language
+detector::detect()       → Language
     ↓
-extractor::extract() → FileMap
+extractor::extract()     → FileMap
     ↓
-output::write_single() → output_dir/relative_path.md
+output::render_all()     → stdout (Markdown 或 JSON)
 ```
 
 ## 模块依赖
@@ -71,37 +71,46 @@ main
  ├── extractor    (符号提取)
  │    ├── detector
  │    └── symbol
- ├── watch        (监听)
- │    ├── scanner
- │    ├── detector
- │    ├── extractor
- │    └── output
  └── output       (输出)
+      ├── cli     (OutputFormat)
       └── symbol
 ```
 
 ## CLI 接口
 
 ```bash
-agent-codemap <input_dir> -o <output_dir> [-w]
+agent-codemap <input> [-f format]
 ```
 
 | 参数 | 说明 |
 |------|------|
-| `input_dir` | 输入目录 (默认: .) |
-| `-o, --output` | 输出目录 (必填) |
-| `-w, --watch` | Watch 模式 |
+| `input` | 输入文件或目录 (默认: .) |
+| `-f, --format` | 输出格式: markdown (默认) 或 json |
 
-## 输出结构
+## 输出格式
 
-输入目录结构会镜像到输出目录，文件名追加 `.md` 扩展名:
+### Markdown
 
+```markdown
+# relative/path/file.ext
+
+- [function] `main` (line 1)
+- [class] `User` (line 5)
+  - [method] `__init__` (line 6)
 ```
-输入: src/components/Button.tsx
-输出: out/components/Button.tsx.md
 
-输入: ./foo.rs (当前目录)
-输出: out/foo.rs.md
+多文件按顺序拼接，排序规则：浅层优先，同深度按路径字典序。
+
+### JSON
+
+```json
+[
+  {
+    "path": "relative/path/file.ext",
+    "language": "python",
+    "symbols": [...]
+  }
+]
 ```
 
 ## 支持语言

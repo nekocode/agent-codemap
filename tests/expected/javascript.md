@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.js
 
 - [class] `Animal` (line 6)
   - [method] `constructor` (line 7)

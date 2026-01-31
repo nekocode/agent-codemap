@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.py
 
 - [class] `User` (line 6)
   - [method] `__init__` (line 9)

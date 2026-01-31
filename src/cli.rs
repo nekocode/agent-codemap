@@ -2,25 +2,28 @@
 // CLI: 命令行参数定义
 // ============================================================
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
+
+#[derive(Debug, Clone, Copy, Default, ValueEnum)]
+pub enum OutputFormat {
+    #[default]
+    Markdown,
+    Json,
+}
 
 #[derive(Parser, Debug)]
 #[command(name = "agent-codemap")]
 #[command(about = "AI-friendly source code index generator")]
 #[command(version)]
 pub struct Cli {
-    /// 输入目录
+    /// Input file or directory
     #[arg(default_value = ".")]
     pub input: PathBuf,
 
-    /// 输出目录 (必填)
-    #[arg(long, short)]
-    pub output: PathBuf,
-
-    /// Watch 模式 (监听文件变化)
-    #[arg(long, short)]
-    pub watch: bool,
+    /// Output format
+    #[arg(long, short, value_enum, default_value = "markdown")]
+    pub format: OutputFormat,
 }
 
 impl Cli {
@@ -40,9 +43,17 @@ mod tests {
     fn test_cli_default_input() {
         let cli = Cli {
             input: PathBuf::from("."),
-            output: PathBuf::from("out"),
-            watch: false,
+            format: OutputFormat::Markdown,
         };
         assert_eq!(cli.input, PathBuf::from("."));
+    }
+
+    #[test]
+    fn test_cli_json_format() {
+        let cli = Cli {
+            input: PathBuf::from("src"),
+            format: OutputFormat::Json,
+        };
+        assert!(matches!(cli.format, OutputFormat::Json));
     }
 }

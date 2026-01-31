@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.rb
 
 - [class] `User` (line 4)
   - [property] `:name` (line 5)

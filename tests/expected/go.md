@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.go
 
 - [class] `User` (line 8)
   - [field] `Name` (line 9)

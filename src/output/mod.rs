@@ -1,27 +1,19 @@
 // ============================================================
-// Output: Markdown 输出
+// Output: 输出格式化 (Markdown / JSON)
 // ============================================================
 
+mod json;
 mod markdown;
 
+use crate::cli::OutputFormat;
 use crate::symbol::FileMap;
-use anyhow::Result;
-use std::fs;
-use std::path::Path;
 
-/// 渲染单个文件的符号到 markdown
-pub fn render_single(map: &FileMap) -> String {
-    markdown::render_single(map)
-}
-
-/// 将单个文件的符号写入输出文件
-pub fn write_single(map: &FileMap, output_path: &Path) -> Result<()> {
-    if let Some(parent) = output_path.parent() {
-        fs::create_dir_all(parent)?;
+/// 渲染所有文件
+pub fn render_all(maps: &[FileMap], format: OutputFormat) -> String {
+    match format {
+        OutputFormat::Markdown => markdown::render_all(maps),
+        OutputFormat::Json => json::render_all(maps),
     }
-    let content = render_single(map);
-    fs::write(output_path, content)?;
-    Ok(())
 }
 
 // ============================================================
@@ -30,8 +22,7 @@ pub fn write_single(map: &FileMap, output_path: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::symbol::{FileMap, Position, Range, Symbol, SymbolKind};
-    use tempfile::TempDir;
+    use crate::symbol::{Position, Range, Symbol, SymbolKind};
 
     fn make_map(path: &str) -> FileMap {
         FileMap {
@@ -51,24 +42,27 @@ mod tests {
     }
 
     #[test]
-    fn test_render_single() {
-        let map = make_map("test.rs");
-        let output = render_single(&map);
-        assert!(output.contains("# OUTLINE"));
+    fn test_render_markdown() {
+        let maps = vec![make_map("test.rs")];
+        let output = render_all(&maps, OutputFormat::Markdown);
+        assert!(output.contains("# test.rs"));
         assert!(output.contains("[function]"));
         assert!(output.contains("`test`"));
     }
 
     #[test]
-    fn test_write_single() {
-        let tmp = TempDir::new().unwrap();
-        let output = tmp.path().join("sub/dir/test.rs.md");
-        let map = make_map("test.rs");
+    fn test_render_json() {
+        let maps = vec![make_map("test.rs")];
+        let output = render_all(&maps, OutputFormat::Json);
+        assert!(output.contains("\"path\": \"test.rs\""));
+        assert!(output.contains("\"name\": \"test\""));
+    }
 
-        write_single(&map, &output).unwrap();
-        assert!(output.exists());
-
-        let content = fs::read_to_string(&output).unwrap();
-        assert!(content.contains("# OUTLINE"));
+    #[test]
+    fn test_render_multiple_files() {
+        let maps = vec![make_map("a.rs"), make_map("b.rs")];
+        let output = render_all(&maps, OutputFormat::Markdown);
+        assert!(output.contains("# a.rs"));
+        assert!(output.contains("# b.rs"));
     }
 }

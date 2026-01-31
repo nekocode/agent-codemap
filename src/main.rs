@@ -8,44 +8,41 @@ mod extractor;
 mod output;
 mod scanner;
 mod symbol;
-mod watch;
 
 use anyhow::Result;
 use cli::Cli;
-use rayon::prelude::*;
+use symbol::FileMap;
 
 fn main() -> Result<()> {
     let cli = Cli::parse_args();
-
-    // Watch 模式
-    if cli.watch {
-        return watch::run(&cli.input, &cli.output);
-    }
-
-    // 普通模式
-    run_once(&cli.input, &cli.output)
+    let result = run(&cli)?;
+    print!("{}", result);
+    Ok(())
 }
 
-/// 单次运行: 扫描 → 解析 → 输出
-pub fn run_once(input: &std::path::Path, output: &std::path::Path) -> Result<()> {
-    let files = scanner::scan(input, output)?;
+/// 扫描 → 解析 → 渲染
+fn run(cli: &Cli) -> Result<String> {
+    let files = scanner::scan(&cli.input)?;
 
-    // 并行处理文件
-    files.par_iter().for_each(|path| {
-        if let Some(lang) = detector::detect(path) {
+    // 收集所有 FileMap
+    let maps: Vec<FileMap> = files
+        .iter()
+        .filter_map(|path| {
+            let lang = detector::detect(path)?;
             match extractor::extract(path, &lang) {
-                Ok(map) => {
-                    let out_path = scanner::output_path(input, path, output);
-                    if let Err(e) = output::write_single(&map, &out_path) {
-                        eprintln!("Warning: failed to write {}: {}", out_path.display(), e);
-                    }
+                Ok(mut map) => {
+                    // 设置相对路径
+                    let rel = scanner::relative_path(&cli.input, path);
+                    map.path = rel.to_string_lossy().to_string();
+                    Some(map)
                 }
                 Err(e) => {
                     eprintln!("Warning: failed to parse {}: {}", path.display(), e);
+                    None
                 }
             }
-        }
-    });
+        })
+        .collect();
 
-    Ok(())
+    Ok(output::render_all(&maps, cli.format))
 }

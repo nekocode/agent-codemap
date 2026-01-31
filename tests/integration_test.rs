@@ -3,7 +3,7 @@
 // ============================================================
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 use tempfile::TempDir;
 
@@ -30,31 +30,23 @@ fn fixtures_path(lang: &str, file: &str) -> PathBuf {
         .join(file)
 }
 
-fn expected_path(lang: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+fn expected_content(lang: &str) -> String {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/expected")
-        .join(format!("{}.md", lang))
+        .join(format!("{}.md", lang));
+    fs::read_to_string(&path)
+        .unwrap_or_else(|_| panic!("Failed to read expected: {}", path.display()))
 }
 
-/// 提取输出内容
-fn extract_content(output: &str) -> String {
-    output.trim().to_string()
-}
-
-/// 精确比对输出与预期文件
-fn assert_output_matches(output_file: &Path, expected_file: &Path) {
-    let output = fs::read_to_string(output_file)
-        .unwrap_or_else(|_| panic!("Failed to read output: {}", output_file.display()));
-    let expected = fs::read_to_string(expected_file)
-        .unwrap_or_else(|_| panic!("Failed to read expected: {}", expected_file.display()));
-
-    let output_content = extract_content(&output);
-    let expected_content = expected.trim();
+/// 精确比对 stdout 与预期
+fn assert_stdout_matches(stdout: &str, expected: &str) {
+    let actual = stdout.trim();
+    let expected = expected.trim();
 
     assert_eq!(
-        output_content, expected_content,
+        actual, expected,
         "\n\nOutput mismatch!\n\nExpected:\n{}\n\nActual:\n{}\n",
-        expected_content, output_content
+        expected, actual
     );
 }
 
@@ -63,73 +55,41 @@ fn assert_output_matches(output_file: &Path, expected_file: &Path) {
 // ------------------------------------------------------------
 
 #[test]
-fn test_single_file_output() {
-    let tmp = TempDir::new().unwrap();
-    let out_dir = tmp.path().join("out");
+fn test_single_file_input() {
+    let file = fixtures_path("python", "basic.py");
+    let (stdout, _) = run_cli(&[file.to_str().unwrap()]);
 
-    run_cli(&[
-        fixtures_path("python", "basic.py").parent().unwrap().to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
-
-    let output_file = out_dir.join("basic.py.md");
-    assert!(output_file.exists(), "Output file should exist");
-    assert_output_matches(&output_file, &expected_path("python"));
+    assert_stdout_matches(&stdout, &expected_content("python"));
 }
 
 #[test]
-fn test_directory_structure_preserved() {
-    let tmp = TempDir::new().unwrap();
-    let out_dir = tmp.path().join("out");
-    let input = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+fn test_directory_input() {
+    let dir = fixtures_path("python", "basic.py").parent().unwrap().to_path_buf();
+    let (stdout, _) = run_cli(&[dir.to_str().unwrap()]);
 
-    run_cli(&[
-        input.to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
-
-    // 检查目录结构保留
-    assert!(out_dir.join("python").exists());
-    assert!(out_dir.join("typescript").exists());
-    assert!(out_dir.join("javascript").exists());
-    assert!(out_dir.join("go").exists());
-    assert!(out_dir.join("rust").exists());
-
-    // 检查具体文件
-    assert!(out_dir.join("python/basic.py.md").exists());
-    assert!(out_dir.join("typescript/basic.ts.md").exists());
+    assert_stdout_matches(&stdout, &expected_content("python"));
 }
 
 #[test]
-fn test_output_dir_excluded() {
-    let tmp = TempDir::new().unwrap();
-    let input = tmp.path();
-    let out_dir = tmp.path().join("out");
+fn test_json_format() {
+    let file = fixtures_path("python", "basic.py");
+    let (stdout, _) = run_cli(&[file.to_str().unwrap(), "-f", "json"]);
 
-    fs::write(input.join("test.rs"), "fn main() {}").unwrap();
-    fs::create_dir(&out_dir).unwrap();
-    fs::write(out_dir.join("existing.md"), "# existing").unwrap();
+    // 验证是有效 JSON
+    let parsed: serde_json::Value = serde_json::from_str(&stdout)
+        .expect("Output should be valid JSON");
 
-    run_cli(&[
-        input.to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
-
-    assert!(out_dir.join("test.rs.md").exists());
-
-    // existing.md 不应该被修改
-    let content = fs::read_to_string(out_dir.join("existing.md")).unwrap();
-    assert_eq!(content, "# existing");
+    assert!(parsed.is_array());
+    let arr = parsed.as_array().unwrap();
+    assert_eq!(arr.len(), 1);
+    assert_eq!(arr[0]["path"], "basic.py");
+    assert_eq!(arr[0]["language"], "python");
 }
 
 #[test]
 fn test_gitignore_respected() {
     let tmp = TempDir::new().unwrap();
     let input = tmp.path();
-    let out_dir = tmp.path().join("out");
 
     std::process::Command::new("git")
         .args(["init"])
@@ -141,50 +101,77 @@ fn test_gitignore_respected() {
     fs::write(input.join("included.rs"), "fn included() {}").unwrap();
     fs::write(input.join("ignored.rs"), "fn ignored() {}").unwrap();
 
-    run_cli(&[
-        input.to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
+    let (stdout, _) = run_cli(&[input.to_str().unwrap()]);
 
-    assert!(out_dir.join("included.rs.md").exists());
-    assert!(!out_dir.join("ignored.rs.md").exists());
+    assert!(stdout.contains("# included.rs"));
+    assert!(!stdout.contains("ignored.rs"));
 }
 
 #[test]
 fn test_empty_directory() {
     let tmp = TempDir::new().unwrap();
     let input = tmp.path().join("empty");
-    let out_dir = tmp.path().join("out");
-
     fs::create_dir(&input).unwrap();
 
-    let (_, stderr) = run_cli(&[
-        input.to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
+    let (stdout, stderr) = run_cli(&[input.to_str().unwrap()]);
 
+    assert!(stdout.is_empty() || stdout.trim().is_empty());
     assert!(!stderr.contains("Error"));
 }
 
 #[test]
-fn test_unsupported_file_type() {
+fn test_unsupported_file_type_ignored() {
     let tmp = TempDir::new().unwrap();
     let input = tmp.path();
-    let out_dir = tmp.path().join("out");
 
     fs::write(input.join("readme.txt"), "Hello").unwrap();
     fs::write(input.join("test.rs"), "fn main() {}").unwrap();
 
-    run_cli(&[
-        input.to_str().unwrap(),
-        "-o",
-        out_dir.to_str().unwrap(),
-    ]);
+    let (stdout, _) = run_cli(&[input.to_str().unwrap()]);
 
-    assert!(!out_dir.join("readme.txt.md").exists());
-    assert!(out_dir.join("test.rs.md").exists());
+    assert!(stdout.contains("# test.rs"));
+    assert!(!stdout.contains("readme.txt"));
+}
+
+#[test]
+fn test_sorted_output() {
+    let tmp = TempDir::new().unwrap();
+    let input = tmp.path();
+    let sub = input.join("sub");
+    fs::create_dir(&sub).unwrap();
+
+    fs::write(input.join("z.rs"), "fn z() {}").unwrap();
+    fs::write(input.join("a.rs"), "fn a() {}").unwrap();
+    fs::write(sub.join("m.rs"), "fn m() {}").unwrap();
+
+    let (stdout, _) = run_cli(&[input.to_str().unwrap()]);
+
+    // 验证顺序: sub/m.rs (目录优先), a.rs, z.rs
+    let a_pos = stdout.find("# a.rs").unwrap();
+    let z_pos = stdout.find("# z.rs").unwrap();
+    let m_pos = stdout.find("# sub/m.rs").unwrap();
+
+    assert!(m_pos < a_pos, "sub/m.rs should come before a.rs (dirs first)");
+    assert!(a_pos < z_pos, "a.rs should come before z.rs");
+}
+
+#[test]
+fn test_multiple_files_concatenated() {
+    let tmp = TempDir::new().unwrap();
+    let input = tmp.path();
+
+    fs::write(input.join("a.rs"), "fn a() {}").unwrap();
+    fs::write(input.join("b.rs"), "fn b() {}").unwrap();
+
+    let (stdout, _) = run_cli(&[input.to_str().unwrap()]);
+
+    // 两个文件都应该出现
+    assert!(stdout.contains("# a.rs"));
+    assert!(stdout.contains("# b.rs"));
+
+    // 内容都应该存在
+    assert!(stdout.contains("`a`"));
+    assert!(stdout.contains("`b`"));
 }
 
 // ------------------------------------------------------------
@@ -195,18 +182,9 @@ macro_rules! language_test {
     ($name:ident, $lang:expr, $file:expr) => {
         #[test]
         fn $name() {
-            let tmp = TempDir::new().unwrap();
-            let out_dir = tmp.path().join("out");
-
-            run_cli(&[
-                fixtures_path($lang, $file).parent().unwrap().to_str().unwrap(),
-                "-o",
-                out_dir.to_str().unwrap(),
-            ]);
-
-            let output_file = out_dir.join(format!("{}.md", $file));
-            assert!(output_file.exists(), "Output file {} should exist", output_file.display());
-            assert_output_matches(&output_file, &expected_path($lang));
+            let file = fixtures_path($lang, $file);
+            let (stdout, _) = run_cli(&[file.to_str().unwrap()]);
+            assert_stdout_matches(&stdout, &expected_content($lang));
         }
     };
 }

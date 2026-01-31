@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.md
 
 - [module] `Project Title` (line 1)
 - [class] `Getting Started` (line 5)

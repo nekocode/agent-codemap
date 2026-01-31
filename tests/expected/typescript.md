@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.ts
 
 - [interface] `User` (line 5)
   - [property] `name` (line 6)

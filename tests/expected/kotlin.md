@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.kt
 
 - [interface] `Identifiable` (line 10)
   - [property] `id` (line 11)

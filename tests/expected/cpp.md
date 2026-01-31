@@ -1,4 +1,4 @@
-# OUTLINE
+# basic.cpp
 
 - [constant] `MAX_USERS` (line 10)
 - [function] `LOG` (line 11)
