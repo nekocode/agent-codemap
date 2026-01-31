@@ -85,6 +85,45 @@ Output:
 - Respects `.gitignore` automatically
 - Nested symbol extraction (methods inside classes, etc.)
 
+## Usage with AI Agents
+
+### Just ask the agent
+
+The simplest approach - just tell your agent to use it:
+
+```
+Use agent-codemap to understand the project structure. Run agent-codemap --help for usage.
+```
+
+The `--help` output is comprehensive and most agents can figure it out from there.
+
+### AGENTS.md / CLAUDE.md
+
+For more consistent results, add to your project instructions:
+
+````markdown
+## Code Structure
+
+Use `agent-codemap` to get code outlines. Run `agent-codemap --help` for all options.
+
+Usage:
+- `agent-codemap .` - Scan entire project
+- `agent-codemap src/` - Scan specific directory
+- `agent-codemap path/to/file.py` - Scan single file
+
+Output format (each file as a section):
+```
+# path/to/file.py
+
+- [class] `ClassName` (line N)
+  - [method] `method_name` (line N)
+  - [variable] `var_name` (line N)
+- [function] `func_name` (line N)
+```
+
+Symbol types: class, function, method, variable, constant, interface, enum, module, property, constructor, field, type, namespace
+````
+
 ## License
 
 MIT

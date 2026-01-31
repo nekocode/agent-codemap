@@ -85,6 +85,45 @@ def create_user(name):
 - 自动遵循 `.gitignore`
 - 嵌套符号提取（类内方法等）
 
+## 与 AI Agent 配合使用
+
+### 直接告诉 Agent
+
+最简单的方式 - 直接让 Agent 使用：
+
+```
+用 agent-codemap 了解项目结构。运行 agent-codemap --help 查看用法。
+```
+
+`--help` 输出足够详细，大多数 Agent 能自己搞定。
+
+### AGENTS.md / CLAUDE.md
+
+想要更稳定的效果，添加到项目指令文件中：
+
+````markdown
+## 代码结构
+
+使用 `agent-codemap` 获取代码大纲。运行 `agent-codemap --help` 查看所有选项。
+
+用法：
+- `agent-codemap .` - 扫描整个项目
+- `agent-codemap src/` - 扫描指定目录
+- `agent-codemap path/to/file.py` - 扫描单个文件
+
+输出格式（每个文件一个章节）：
+```
+# path/to/file.py
+
+- [class] `ClassName` (line N)
+  - [method] `method_name` (line N)
+  - [variable] `var_name` (line N)
+- [function] `func_name` (line N)
+```
+
+符号类型：class, function, method, variable, constant, interface, enum, module, property, constructor, field, type, namespace
+````
+
 ## 许可证
 
 MIT
