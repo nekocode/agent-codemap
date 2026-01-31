@@ -37,7 +37,7 @@ function getBinaryPath() {
     return join(pkgPath, "..", "bin", exe);
   } catch {
     console.error(`Platform package not found: ${pkg}`);
-    console.error("Try reinstalling: npm install @nekocode/agent-codemap");
+    console.error("Try reinstalling: npm install -g agent-codemap");
     process.exit(1);
   }
 }

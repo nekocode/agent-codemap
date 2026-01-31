@@ -10,7 +10,7 @@ AI 友好的源码索引生成器。从源文件中提取符号，输出结构�
 
 **方式一：npm（推荐）**
 ```bash
-npm install -g @nekocode/agent-codemap
+npm install -g agent-codemap
 ```
 
 **方式二：从源码构建**
@@ -21,11 +21,17 @@ cargo install --path .
 ## 使用
 
 ```bash
-# 为目录生成索引
-agent-codemap . -o ./.codemap
+# 为当前目录生成索引（输出到 stdout）
+agent-codemap .
 
-# 监听模式（文件变动时自动重新生成）
-agent-codemap . -o ./.codemap -w
+# 为指定文件生成索引
+agent-codemap src/main.rs
+
+# 输出 JSON 格式
+agent-codemap . --format json
+
+# 保存到文件
+agent-codemap . > codemap.md
 ```
 
 ## 输出示例
@@ -43,9 +49,9 @@ def create_user(name):
     return User(name)
 ```
 
-输出 `.codemap/src/user.py.md`：
+输出：
 ```markdown
-# OUTLINE
+# src/user.py
 
 - [class] `User` (line 1)
   - [method] `__init__` (line 2)
@@ -74,42 +80,10 @@ def create_user(name):
 
 ## 特性
 
+- 输出到 stdout（管道友好）
+- 支持 Markdown 和 JSON 格式
 - 自动遵循 `.gitignore`
-- 输出保持目录结构
-- 监听模式支持增量更新
 - 嵌套符号提取（类内方法等）
-
-## 与 AI Agent 配合使用
-
-**第一步：生成代码索引**
-
-```bash
-agent-codemap . -o ./.codemap
-```
-
-**第二步：添加到 AI Agent 指令中**
-
-将以下内容添加到你的 `CLAUDE.md`、`AGENTS.md` 或类似文件：
-
-````markdown
-## 代码大纲
-
-在 `.codemap/` 目录下，每个源码文件都有对应的大纲文件，路径规则为：源码的相对路径 + `.md` 后缀。
-
-例如：`src/A.js` → `.codemap/src/A.js.md`
-
-大纲文件包含 AST 结构信息，格式示例：
-```
-# OUTLINE
-
-- [class] `User` (line 12)
-  - [variable] `id` (line 15)
-  - [method] `authenticate` (line 28)
-- [function] `create_session` (line 45)
-```
-````
-
-**提示**：如果不想提交索引文件，可将 `.codemap/` 添加到 `.gitignore`。
 
 ## 许可证
 

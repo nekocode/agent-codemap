@@ -10,7 +10,7 @@ AI-friendly source code index generator. Extracts symbols from source files and 
 
 **Option 1: npm (recommended)**
 ```bash
-npm install -g @nekocode/agent-codemap
+npm install -g agent-codemap
 ```
 
 **Option 2: Build from source**
@@ -21,11 +21,17 @@ cargo install --path .
 ## Usage
 
 ```bash
-# Generate index for a directory
-agent-codemap . -o ./.codemap
+# Generate index for current directory (stdout)
+agent-codemap .
 
-# Watch mode (regenerate on file changes)
-agent-codemap . -o ./.codemap -w
+# Generate index for a specific file
+agent-codemap src/main.rs
+
+# Output as JSON
+agent-codemap . --format json
+
+# Save to file
+agent-codemap . > codemap.md
 ```
 
 ## Example Output
@@ -43,9 +49,9 @@ def create_user(name):
     return User(name)
 ```
 
-Output `.codemap/src/user.py.md`:
+Output:
 ```markdown
-# OUTLINE
+# src/user.py
 
 - [class] `User` (line 1)
   - [method] `__init__` (line 2)
@@ -74,43 +80,10 @@ Output `.codemap/src/user.py.md`:
 
 ## Features
 
+- Outputs to stdout (pipe-friendly)
+- Supports Markdown and JSON formats
 - Respects `.gitignore` automatically
-- Preserves directory structure in output
-- Watch mode for incremental updates
 - Nested symbol extraction (methods inside classes, etc.)
-
-
-## Usage with AI Agents
-
-**Step 1: Generate code index**
-
-```bash
-agent-codemap . -o ./.codemap
-```
-
-**Step 2: Add to your AI agent instructions**
-
-Add the following to your `CLAUDE.md`, `AGENTS.md`, or equivalent:
-
-````markdown
-## Code Outline
-
-The `.codemap/` directory contains outline files for each source file. Path rule: source file's relative path + `.md` suffix.
-
-Example: `src/A.js` → `.codemap/src/A.js.md`
-
-Outline files contain AST structure info, format example:
-```
-# OUTLINE
-
-- [class] `User` (line 12)
-  - [variable] `id` (line 15)
-  - [method] `authenticate` (line 28)
-- [function] `create_session` (line 45)
-```
-````
-
-**Tip**: Add `.codemap/` to `.gitignore` if you prefer not to commit the index.
 
 ## License
 

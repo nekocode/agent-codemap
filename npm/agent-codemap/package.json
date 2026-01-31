@@ -1,6 +1,6 @@
 {
-  "name": "@nekocode/agent-codemap",
-  "version": "0.1.2",
+  "name": "agent-codemap",
+  "version": "0.2.0",
   "description": "AI-friendly source code index generator",
   "keywords": ["cli", "code-index", "tree-sitter", "ai", "llm"],
   "license": "MIT",
@@ -15,10 +15,10 @@
     "postinstall": "node install.js"
   },
   "optionalDependencies": {
-    "@nekocode/agent-codemap-darwin-arm64": "0.1.2",
-    "@nekocode/agent-codemap-darwin-x64": "0.1.2",
-    "@nekocode/agent-codemap-linux-x64": "0.1.2",
-    "@nekocode/agent-codemap-win32-x64": "0.1.2"
+    "@nekocode/agent-codemap-darwin-arm64": "0.2.0",
+    "@nekocode/agent-codemap-darwin-x64": "0.2.0",
+    "@nekocode/agent-codemap-linux-x64": "0.2.0",
+    "@nekocode/agent-codemap-win32-x64": "0.2.0"
   },
   "engines": {
     "node": ">=14"

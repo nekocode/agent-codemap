@@ -32,7 +32,7 @@ agent-codemap/
 │       ├── objc.scm
 │       ├── kotlin.scm
 │       └── csharp.scm
-├── npm/                 # npm 分发包 (@nekocode/*)
+├── npm/                 # npm 分发包
 │   ├── agent-codemap/              # 主包 (JS wrapper)
 │   ├── agent-codemap-darwin-arm64/ # macOS ARM64 二进制
 │   ├── agent-codemap-darwin-x64/   # macOS x64 二进制
@@ -99,7 +99,7 @@ agent-codemap <input> [-f format]
   - [method] `__init__` (line 6)
 ```
 
-多文件按顺序拼接，排序规则：浅层优先，同深度按路径字典序。
+多文件按顺序拼接，排序规则：同级目录优先于文件，各自按字典序。
 
 ### JSON
 
@@ -148,10 +148,10 @@ enum SymbolKind {
 
 ```bash
 # 全局安装
-npm install -g @nekocode/agent-codemap
+npm install -g agent-codemap
 
 # 或项目内安装
-npm install @nekocode/agent-codemap
+npm install agent-codemap
 npx agent-codemap --help
 ```
 
@@ -170,6 +170,6 @@ npx agent-codemap --help
 
 ### 工作原理
 
-1. 主包 `@nekocode/agent-codemap` 通过 `optionalDependencies` 引用平台包
+1. 主包 `agent-codemap` 通过 `optionalDependencies` 引用平台包
 2. npm 根据当前平台自动只安装匹配的平台包
 3. JS wrapper 检测平台，调用对应二进制

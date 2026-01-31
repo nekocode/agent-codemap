@@ -1,6 +1,6 @@
 {
   "name": "@nekocode/agent-codemap-darwin-x64",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "agent-codemap binary for macOS x64",
   "license": "MIT",
   "repository": {

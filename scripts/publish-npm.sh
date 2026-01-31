@@ -124,6 +124,6 @@ for platform in darwin-arm64 darwin-x64 linux-x64 win32-x64; do
 done
 
 # Publish main package last
-publish_package "$NPM_DIR/agent-codemap" "@nekocode/agent-codemap" "$VERSION" "$DRY_RUN"
+publish_package "$NPM_DIR/agent-codemap" "agent-codemap" "$VERSION" "$DRY_RUN"
 
 log "Publish complete!"
