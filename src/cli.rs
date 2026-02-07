@@ -24,6 +24,10 @@ pub struct Cli {
     /// Output format
     #[arg(long, short, value_enum, default_value = "markdown")]
     pub format: OutputFormat,
+
+    /// Update to the latest version
+    #[arg(long)]
+    pub update: bool,
 }
 
 impl Cli {
@@ -44,6 +48,7 @@ mod tests {
         let cli = Cli {
             input: PathBuf::from("."),
             format: OutputFormat::Markdown,
+            update: false,
         };
         assert_eq!(cli.input, PathBuf::from("."));
     }
@@ -53,7 +58,15 @@ mod tests {
         let cli = Cli {
             input: PathBuf::from("src"),
             format: OutputFormat::Json,
+            update: false,
         };
         assert!(matches!(cli.format, OutputFormat::Json));
+    }
+
+    #[test]
+    fn test_cli_update_flag() {
+        let cli = Cli::try_parse_from(["agent-codemap", "--update"]);
+        assert!(cli.is_ok());
+        assert!(cli.unwrap().update);
     }
 }

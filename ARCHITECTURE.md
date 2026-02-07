@@ -13,6 +13,7 @@ agent-codemap/
 │   ├── detector.rs      # 语言检测 (扩展名 → Language)
 │   ├── extractor.rs     # Tree-sitter 符号提取核心
 │   ├── symbol.rs        # 符号数据结构 (Symbol, FileMap)
+│   ├── update.rs        # 版本更新检查 (npm registry, 后台检查, 自更新)
 │   ├── output/          # 输出格式化
 │   │   ├── mod.rs       # 输出调度
 │   │   ├── markdown.rs  # Markdown 格式
@@ -71,6 +72,7 @@ main
  ├── extractor    (符号提取)
  │    ├── detector
  │    └── symbol
+ ├── update       (版本更新: npm registry 检查 + 自更新)
  └── output       (输出)
       ├── cli     (OutputFormat)
       └── symbol
@@ -79,13 +81,16 @@ main
 ## CLI 接口
 
 ```bash
-agent-codemap <input> [-f format]
+agent-codemap <input> [-f format] [--update]
 ```
 
 | 参数 | 说明 |
 |------|------|
 | `input` | 输入文件或目录 (默认: .) |
 | `-f, --format` | 输出格式: markdown (默认) 或 json |
+| `--update` | 更新到最新版本 (从 npm registry) |
+
+启动时自动后台检查更新 (每 24 小时一次)，有新版本时黄色提示。
 
 ## 输出格式
 

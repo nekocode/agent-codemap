@@ -8,14 +8,14 @@ AI 友好的源码索引生成器。从源文件中提取符号，输出结构�
 
 ## 安装
 
-**方式一：npm（推荐）**
 ```bash
 npm install -g agent-codemap
 ```
 
-**方式二：从源码构建**
+更新到最新版本：
+
 ```bash
-cargo install --path .
+agent-codemap --update
 ```
 
 ## 使用

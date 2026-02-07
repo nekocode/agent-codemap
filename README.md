@@ -8,14 +8,14 @@ AI-friendly source code index generator. Extracts symbols from source files and 
 
 ## Install
 
-**Option 1: npm (recommended)**
 ```bash
 npm install -g agent-codemap
 ```
 
-**Option 2: Build from source**
+Update to the latest version:
+
 ```bash
-cargo install --path .
+agent-codemap --update
 ```
 
 ## Usage
