@@ -15,30 +15,14 @@ use cli::Cli;
 use symbol::FileMap;
 
 fn main() -> Result<()> {
-    // 后台检查更新 (24h 一次)
-    let update_handle = update::base_dir().ok().and_then(|dir| {
-        if update::should_check(&dir) {
-            Some(update::spawn_background_check(dir))
-        } else {
-            None
-        }
-    });
-
     let cli = Cli::parse_args();
-    let result = if cli.update {
+    if cli.update {
         update::run_update()
     } else {
         let output = run(&cli)?;
         print!("{}", output);
         Ok(())
-    };
-
-    // 等待后台检查完成
-    if let Some(handle) = update_handle {
-        let _ = handle.join();
     }
-
-    result
 }
 
 /// 扫描 → 解析 → 渲染

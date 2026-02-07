@@ -2,42 +2,11 @@
 // update - 版本更新检查
 // ============================================================
 
-use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-const CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60); // 24 hours
-const MARKER_FILE: &str = "last_update_check";
-
-/// 获取 base 目录: ~/.agent-codemap
-pub fn base_dir() -> Result<PathBuf> {
-    let home = dirs::home_dir().context("cannot determine home directory")?;
-    Ok(home.join(".agent-codemap"))
-}
-
-/// 是否该检查更新 (每 24 小时一次)
-pub fn should_check(base_dir: &Path) -> bool {
-    let marker = base_dir.join(MARKER_FILE);
-    if !marker.exists() {
-        return true;
-    }
-
-    marker
-        .metadata()
-        .and_then(|m| m.modified())
-        .map(|mtime| SystemTime::now().duration_since(mtime).unwrap_or_default() > CHECK_INTERVAL)
-        .unwrap_or(true)
-}
-
-/// 标记已检查
-pub fn mark_checked(base_dir: &Path) -> Result<()> {
-    std::fs::create_dir_all(base_dir)?;
-    let marker = base_dir.join(MARKER_FILE);
-    std::fs::write(&marker, "")?;
-    Ok(())
-}
 
 /// 版本比较: latest > current 返回 true
 pub fn compare_versions(current: &str, latest: &str) -> bool {
@@ -96,20 +65,6 @@ pub fn check_update(current_version: &str) -> Result<Option<String>> {
     }
 }
 
-/// 后台检查入口: spawn 线程，启动时调用
-pub fn spawn_background_check(dir: PathBuf) -> std::thread::JoinHandle<()> {
-    std::thread::spawn(move || {
-        if let Ok(Some(latest)) = check_update(VERSION) {
-            eprintln!(
-                "\x1b[33mA new version of agent-codemap is available: {} -> {}\x1b[0m",
-                VERSION, latest
-            );
-            eprintln!("\x1b[33mRun `agent-codemap --update` to update\x1b[0m");
-        }
-        let _ = mark_checked(&dir);
-    })
-}
-
 /// 执行更新
 pub fn run_update() -> Result<()> {
     eprintln!("Checking for updates...");
@@ -143,45 +98,6 @@ pub fn run_update() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
-
-    #[test]
-    fn test_should_check_no_marker_file() {
-        let temp = TempDir::new().unwrap();
-        assert!(should_check(temp.path()));
-    }
-
-    #[test]
-    fn test_should_check_fresh_marker() {
-        let temp = TempDir::new().unwrap();
-        let marker = temp.path().join("last_update_check");
-        std::fs::write(&marker, "").unwrap();
-        assert!(!should_check(temp.path()));
-    }
-
-    #[test]
-    fn test_should_check_stale_marker() {
-        let temp = TempDir::new().unwrap();
-        let marker = temp.path().join("last_update_check");
-        std::fs::write(&marker, "").unwrap();
-
-        // 设置 mtime 为 25 小时前
-        let old_time = SystemTime::now() - Duration::from_secs(25 * 60 * 60);
-        filetime::set_file_mtime(&marker, filetime::FileTime::from_system_time(old_time)).unwrap();
-
-        assert!(should_check(temp.path()));
-    }
-
-    #[test]
-    fn test_mark_checked_creates_marker() {
-        let temp = TempDir::new().unwrap();
-        let marker = temp.path().join("last_update_check");
-        assert!(!marker.exists());
-
-        mark_checked(temp.path()).unwrap();
-
-        assert!(marker.exists());
-    }
 
     #[test]
     fn test_compare_versions_same() {
@@ -205,11 +121,5 @@ mod tests {
         assert!(compare_versions("0.4", "0.4.1"));
         assert!(!compare_versions("0.4.1", "0.4"));
         assert!(compare_versions("0.9.9", "0.10.0"));
-    }
-
-    #[test]
-    fn test_base_dir() {
-        let dir = base_dir().unwrap();
-        assert!(dir.ends_with(".agent-codemap"));
     }
 }
