@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nekocode/agent-codemap"
+    "url": "git+https://github.com/nekocode/agent-codemap.git"
   },
   "bin": {
     "agent-codemap": "bin/agent-codemap.js"
