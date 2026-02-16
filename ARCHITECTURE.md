@@ -88,7 +88,7 @@ agent-codemap <input> [-f format] [--update]
 |------|------|
 | `input` | 输入文件或目录 (默认: .) |
 | `-f, --format` | 输出格式: markdown (默认) 或 json |
-| `--update` | 更新到最新版本 (从 npm registry) |
+| `--update` | 更新到最新版本 (查询 npm registry，逐段数字比较 semver) |
 
 ## 输出格式
 
@@ -121,8 +121,10 @@ agent-codemap <input> [-f format] [--update]
 | 语言 | 扩展名 | 查询文件 |
 |------|--------|----------|
 | Python | .py, .pyi | python.scm |
-| TypeScript | .ts, .tsx | typescript.scm |
-| JavaScript | .js, .mjs, .cjs, .jsx | javascript.scm |
+| TypeScript | .ts | typescript.scm |
+| TSX | .tsx | typescript.scm |
+| JavaScript | .js, .mjs, .cjs | javascript.scm |
+| JSX | .jsx | javascript.scm |
 | Go | .go | go.scm |
 | Rust | .rs | rust.scm |
 | Java | .java | java.scm |
@@ -173,6 +175,6 @@ npx agent-codemap --help
 
 ### 工作原理
 
-1. 主包 `agent-codemap` 通过 `optionalDependencies` 引用平台包
+1. 主包 `agent-codemap` 通过 `optionalDependencies` 引用平台包 (`@nekocode/agent-codemap-{platform}`)
 2. npm 根据当前平台自动只安装匹配的平台包
 3. JS wrapper 检测平台，调用对应二进制
